@@ -12,11 +12,11 @@ __status__ = "Final Submission"
 
 # imports one per line
 import json
-from datetime import date
 from operator import itemgetter
 
 # Initialize the dictionary to hold monthly averages.
-monthly_averages = {}
+all_monthly_averages = []
+
 
 def read_stock_data(stock_name, stock_file_name):
     """
@@ -52,17 +52,15 @@ def read_stock_data(stock_name, stock_file_name):
     last_entry_month = stock_data[0]['Date'][5:7]
     last_entry_year = stock_data[0]['Date'][0:4]
 
-    last_entry_date =
-
     for daily_entry in stock_data:
 
         # If this entry is in the same month as the last entry, add to running average for that month.
         # For the first entry, this will be true because of how the date was initialized.
-        if daily_entry['Date'][5:7] == last_entry_month and daily_entry['Date'][8:10] == last_entry_year:
+        if daily_entry['Date'][5:7] == last_entry_month and daily_entry['Date'][0:4] == last_entry_year:
             numerator += float(daily_entry['Close']) * int(daily_entry['Volume'])
             denominator += int(daily_entry['Volume'])
 
-        # Alternatively, if this day's entry is from a different month,
+        # Alternatively, if this day's entry is from a different month than the last entry,
         # calculate the average for the month that just "ended" and insert it into monthly_averages.
         else:
             # Check to ensure total volume for the month (denominator) is not 0. If it is, use 0 as the monthly average.
@@ -71,9 +69,9 @@ def read_stock_data(stock_name, stock_file_name):
             else:
                 monthly_average = 0
 
-            # Add calculated monthly average to monthly_averages dictionary
+            # Add calculated monthly average (rounded to two digits) to monthly_averages dictionary
             date_string = str(last_entry_year) + '/' + str(last_entry_month)
-            monthly_averages[date_string] = monthly_average
+            all_monthly_averages.append((date_string, round(monthly_average, 2)))
 
             # Restart numerator and denominator counting for new month.
             numerator = float(daily_entry['Close']) * int(daily_entry['Volume'])
@@ -83,17 +81,16 @@ def read_stock_data(stock_name, stock_file_name):
         last_entry_month = daily_entry['Date'][5:7]
         last_entry_year = daily_entry['Date'][0:4]
 
-    return monthly_averages
+    return all_monthly_averages
 
 
 def six_best_months():
     """
-    :param monthly_averages: a dictionary of months and their associated average stock prices for a given stock
     :return: a list of the 6 months with the highest average stock prices. Each item in the list is a tuple:
         [year/month, average_price]
     """
     # Create a reverse sorted list out of monthly_averages, sorting by the dictionary values (highest -> lowest).
-    highest_monthly_averages = sorted(monthly_averages, key=itemgetter(2), reverse=True)
+    highest_monthly_averages = sorted(all_monthly_averages, key=itemgetter(1), reverse=True)
 
     # Return a list containing the first six sorted items.
     return highest_monthly_averages[0:6]
@@ -101,12 +98,11 @@ def six_best_months():
 
 def six_worst_months():
     """
-    :param monthly_averages: a dictionary of months and their associated average stock prices for a given stock
-    :return: a list of the 6 months with the lowest average stock prices. Each item in the list is a list
-    containing two items: [year/month, average_price]
+    :return: a list of the 6 months with the lowest average stock prices. Each item in the list is a tuple:
+        [year/month, average_price]
     """
     # Create sorted list of lists out of monthly_averages, sorting by the dictionary values (lowest -> highest).
-    lowest_monthly_averages = sorted(monthly_averages, key=itemgetter(2))
+    lowest_monthly_averages = sorted(all_monthly_averages, key=itemgetter(1))
 
     # Return a list containing the first sorted six items.
     return lowest_monthly_averages[0:6]
@@ -118,3 +114,11 @@ def read_json_from_file(file_name):
         file_contents = file_handle.read()
 
     return json.loads(file_contents)
+
+
+# def compare_two_stocks(first_stock_name, first_stock_file, second_stock_name, second_stock_file):
+#
+#     first_stock_data = read_json_from_file(first_stock_file)
+#     second_stock_data = read_json_from_file(second_stock_file)
+
+
