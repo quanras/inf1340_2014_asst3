@@ -119,7 +119,7 @@ def read_json_from_file(file_name):
     return json.loads(file_contents)
 
 
-def compare_two_stocks_std_dev(first_stock_name, first_stock_file, second_stock_name, second_stock_file):
+def two_stocks_highest_std_dev(first_stock_name, first_stock_file, second_stock_name, second_stock_file):
     """
     Determine which of two stocks has the highest standard deviation of monthly averages in the given data sets.
 
