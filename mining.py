@@ -13,6 +13,7 @@ __status__ = "Final Submission"
 # imports one per line
 import json
 from operator import itemgetter
+from statistics import stdev
 
 # Initialize the dictionary to hold monthly averages.
 all_monthly_averages = []
@@ -20,9 +21,9 @@ all_monthly_averages = []
 
 def read_stock_data(stock_name, stock_file_name):
     """
-    :param stock_name: The stock's ticker symbol
+    :param stock_name: the stock's ticker symbol
     :param stock_file_name: the name of the file containing the JSON stock data.
-    :return: a dictionary containing the monthly average stock prices {year/month: average, year/month: average, ...}
+    :return: a list containing tuples of the monthly average stock prices [year/month: average, ...]
 
     The monthly average is calculated using the following formula:
 
@@ -86,8 +87,9 @@ def read_stock_data(stock_name, stock_file_name):
 
 def six_best_months():
     """
-    :return: a list of the 6 months with the highest average stock prices. Each item in the list is a tuple:
-        [year/month, average_price]
+    :return: a list of the 6 months with the highest average stock prices, using the current value of the global
+    program variable all_monthly_averages as its data source.
+    Each item in the list is a tuple: (year/month, average_price)
     """
     # Create a reverse sorted list out of monthly_averages, sorting by the dictionary values (highest -> lowest).
     highest_monthly_averages = sorted(all_monthly_averages, key=itemgetter(1), reverse=True)
@@ -98,8 +100,9 @@ def six_best_months():
 
 def six_worst_months():
     """
-    :return: a list of the 6 months with the lowest average stock prices. Each item in the list is a tuple:
-        [year/month, average_price]
+    :return: a list of the 6 months with the lowest average stock prices, using the current value of the global
+    program variable all_monthly_averages as its data source.
+    Each item in the list is a tuple: (year/month, average_price)
     """
     # Create sorted list of lists out of monthly_averages, sorting by the dictionary values (lowest -> highest).
     lowest_monthly_averages = sorted(all_monthly_averages, key=itemgetter(1))
@@ -108,7 +111,7 @@ def six_worst_months():
     return lowest_monthly_averages[0:6]
 
 
-# This function was provided, so I did not create a docstring for it.
+# This function was provided, so I didn't create a docstring for it.
 def read_json_from_file(file_name):
     with open(file_name) as file_handle:
         file_contents = file_handle.read()
@@ -116,9 +119,27 @@ def read_json_from_file(file_name):
     return json.loads(file_contents)
 
 
-# def compare_two_stocks(first_stock_name, first_stock_file, second_stock_name, second_stock_file):
-#
-#     first_stock_data = read_json_from_file(first_stock_file)
-#     second_stock_data = read_json_from_file(second_stock_file)
+def compare_two_stocks_std_dev(first_stock_name, first_stock_file, second_stock_name, second_stock_file):
+    """
+    Determine which of two stocks has the highest standard deviation of monthly averages in the given data sets.
 
+    :param first_stock_name: string, the ticker symbol of the first stock
+    :param first_stock_file: JSON file containing the first stock's daily stock entries
+    :param second_stock_name: string, the ticker symbol of the second stock
+    :param second_stock_file:JSON file containing the second stock's daily stock entries
+    :return: None, if the two stocks have the same standard deviation of monthly averages (to 2 decimal places);
+                the ticker symbol of the stock with the higher standard deviation of monthly averages
+    """
 
+    first_stock_monthly_averages = read_stock_date(first_stock_name, first_stock_file)
+    second_stock_monthly_averages = read_stock_data(second_stock_name, second_stock_file)
+
+    first_stock_stdev = round(stdev(first_stock_monthly_averages), 2)
+    second_stock_stdev = round(stdev(second_stock_monthly_averages), 2)
+
+    if first_stock_stdev == second_stock_stdev:
+        return None
+    elif first_stock_stdev > second_stock_stdev:
+        return first_stock_name
+    else:
+        return second_stock_name
