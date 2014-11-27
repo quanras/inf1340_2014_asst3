@@ -122,23 +122,25 @@ def read_json_from_file(file_name):
 def two_stocks_highest_std_dev(first_stock_name, first_stock_file, second_stock_name, second_stock_file):
     """
     Determine which of two stocks has the highest standard deviation of monthly averages in the given data sets.
+    Uses the stdev function from the statistics package.
 
     :param first_stock_name: string, the ticker symbol of the first stock
     :param first_stock_file: JSON file containing the first stock's daily stock entries
     :param second_stock_name: string, the ticker symbol of the second stock
     :param second_stock_file:JSON file containing the second stock's daily stock entries
-    :return: None, if the two stocks have the same standard deviation of monthly averages (to 2 decimal places);
-                the ticker symbol of the stock with the higher standard deviation of monthly averages
+    :return: the ticker symbol of the stock with the higher standard deviation of monthly averages (to 2 decimal places)
+        # or 0, if the two stocks have the same standard deviation of monthly averages (to 2 decimal places).
+    #
     """
 
-    first_stock_monthly_averages = read_stock_date(first_stock_name, first_stock_file)
+    first_stock_monthly_averages = read_stock_data(first_stock_name, first_stock_file)
     second_stock_monthly_averages = read_stock_data(second_stock_name, second_stock_file)
 
     first_stock_stdev = round(stdev(first_stock_monthly_averages), 2)
     second_stock_stdev = round(stdev(second_stock_monthly_averages), 2)
 
     if first_stock_stdev == second_stock_stdev:
-        return None
+        return 0
     elif first_stock_stdev > second_stock_stdev:
         return first_stock_name
     else:
