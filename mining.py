@@ -88,7 +88,7 @@ def read_stock_data(stock_name, stock_file_name):
 def six_best_months():
     """
     :return: a list of the 6 months with the highest average stock prices, using the current value of the global
-    program variable all_monthly_averages as its data source.
+    variable all_monthly_averages as its data source.
     Each item in the list is a tuple: (year/month, average_price)
     """
     # Create a reverse sorted list out of monthly_averages, sorting by the dictionary values (highest -> lowest).
@@ -101,7 +101,7 @@ def six_best_months():
 def six_worst_months():
     """
     :return: a list of the 6 months with the lowest average stock prices, using the current value of the global
-    program variable all_monthly_averages as its data source.
+    variable all_monthly_averages as its data source.
     Each item in the list is a tuple: (year/month, average_price)
     """
     # Create sorted list of lists out of monthly_averages, sorting by the dictionary values (lowest -> highest).
@@ -122,22 +122,39 @@ def read_json_from_file(file_name):
 def two_stocks_highest_std_dev(first_stock_name, first_stock_file, second_stock_name, second_stock_file):
     """
     Determine which of two stocks has the highest standard deviation of monthly averages in the given data sets.
-    Uses the stdev function from the statistics package.
+    Uses the stdev function from the statistics package. Note that this ignores whether the data used for the two stocks
+    covers same time period
 
     :param first_stock_name: string, the ticker symbol of the first stock
     :param first_stock_file: JSON file containing the first stock's daily stock entries
     :param second_stock_name: string, the ticker symbol of the second stock
     :param second_stock_file:JSON file containing the second stock's daily stock entries
     :return: the ticker symbol of the stock with the higher standard deviation of monthly averages (to 2 decimal places)
-        # or 0, if the two stocks have the same standard deviation of monthly averages (to 2 decimal places).
+        # or 0, if either:
+            - the two stocks have the same standard deviation of monthly averages (to 2 decimal places), or
+            - one of the passed stock lengths is less than 2 (this would make calculating stdev impossible).
     #
     """
 
     first_stock_monthly_averages = read_stock_data(first_stock_name, first_stock_file)
     second_stock_monthly_averages = read_stock_data(second_stock_name, second_stock_file)
 
-    first_stock_stdev = round(stdev(first_stock_monthly_averages), 2)
-    second_stock_stdev = round(stdev(second_stock_monthly_averages), 2)
+    if len(first_stock_monthly_averages) < 2 or len(second_stock_monthly_averages) < 2:
+        return 0
+
+    # Create a list for each stock with only the numbers - no month identifier strings.
+    first_stock_averages_only = []
+    second_stock_averages_only = []
+
+    for monthly_average in first_stock_monthly_averages:
+        first_stock_averages_only.append(monthly_average[1])
+
+    for monthly_average in second_stock_monthly_averages:
+        second_stock_averages_only.append(monthly_average[1])
+
+    #Calculate stdev values and return appropriate value
+    first_stock_stdev = round(stdev(first_stock_averages_only), 2)
+    second_stock_stdev = round(stdev(second_stock_averages_only), 2)
 
     if first_stock_stdev == second_stock_stdev:
         return 0
